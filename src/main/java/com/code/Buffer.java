@@ -1,26 +1,23 @@
 package com.code;
 
 import java.io.*;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class Buffer<E> extends ArrayList<E> {
     private long maxSize;
     private long actualPos;
     private File file;
-    private final Constructor<? extends  E> constructor;
+    private final Factory<E> factory;
 
-    public Buffer(long maxSize, long actualPos, String filePath, Constructor<? extends E> constructor) {
+    public Buffer(long maxSize, long actualPos, String filePath, Factory<E> factory) {
         this.maxSize = maxSize;
         this.actualPos = actualPos;
         this.file = new File(filePath);
-        this.constructor = constructor;
+        this.factory = factory;
     }
 
-    public void load() {
+    public void load(String split) {
         try {
             if (this.file.exists()) {
                 System.out.println("Arquivo de entrada não existe!");
@@ -29,32 +26,16 @@ public class Buffer<E> extends ArrayList<E> {
 
             BufferedReader bufferedReader = new BufferedReader(new FileReader(this.file));
 
-            Type[] types = constructor.getParameterTypes();
-
             while(this.size() < this.maxSize) {
 
-                E data = (E) constructor.newInstance(bufferedReader.readLine());
+                String[] args = bufferedReader.readLine().split(split);
+
+                E data = factory.make(args);
                 this.add(data);
             }
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
-
-    public void testAnnotationAndTypes() {
-        Type[] types = constructor.getParameterTypes();
-        Annotation[][] parameters = constructor.getParameterAnnotations();
-        System.out.println("Types:");
-        for (Type type: types) {
-            System.out.println(type);
-        }
-
-        for (Annotation[] row : parameters) {
-            for (Annotation annotation : row) {
-                System.out.println(annotation.toString());
-            }
-        }
-
     }
 
     public long getMaxSize() { return this.maxSize; }
