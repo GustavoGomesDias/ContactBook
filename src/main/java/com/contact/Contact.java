@@ -13,11 +13,11 @@ public class Contact {
         this.country = country;
     }
 
-    public String getFirstName() {
+    public String getFullName() {
         return fullName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFullName(String firstName) {
         this.fullName = firstName;
     }
 
