@@ -3,20 +3,22 @@ package com.code;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Buffer<E> extends ArrayList<E> {
     private long maxSize;
     private long actualPos;
     private File file;
     private final Factory<E> factory;
+    private final String outFileName;
 
     public Buffer(long maxSize, long actualPos, String filePath, Factory<E> factory) {
         this.maxSize = maxSize;
         this.actualPos = actualPos;
         this.file = new File(filePath);
         this.factory = factory;
+        this.outFileName = "out-" + new SecureRandom().nextInt() + ".txt";
     }
 
     public void load(String split) {
@@ -27,13 +29,16 @@ public class Buffer<E> extends ArrayList<E> {
             }
 
             BufferedReader bufferedReader = new BufferedReader(new FileReader(this.file));
+            ObjectSizeCalculator objSizeCalc = new ObjectSizeCalculator();
 
-            while(this.size() < this.maxSize) {
+            String infos = bufferedReader.readLine();
 
-                String[] args = bufferedReader.readLine().split(split);
-
+            while((this.size() < this.maxSize) && (infos != null)) {
+                String[] args = infos.split(split);
                 E data = factory.make(args);
+                System.out.println(objSizeCalc.getObjectSizeInBytes(data) + " Bytes");
                 this.add(data);
+                infos = bufferedReader.readLine();
             }
             System.out.println("Dados carregados.");
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -42,7 +47,7 @@ public class Buffer<E> extends ArrayList<E> {
     }
 
     public void writeFile(String...order) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("./results/out.txt", true));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("./results/split/" + this.outFileName, true));
         for (E e : this) {
             StringBuilder str = new StringBuilder();
             Method[] methods = e.getClass().getMethods();
@@ -54,7 +59,6 @@ public class Buffer<E> extends ArrayList<E> {
                     }
                 }
             }
-            System.out.println(str);
             bufferedWriter.write(str.toString() + "\n");
         }
 
@@ -78,5 +82,9 @@ public class Buffer<E> extends ArrayList<E> {
 
     public void setFile(String filePath) {
         this.file = new File(filePath);
+    }
+
+    public String getOutFileName() {
+        return outFileName;
     }
 }
