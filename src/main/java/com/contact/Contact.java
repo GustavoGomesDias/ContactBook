@@ -2,7 +2,7 @@ package com.contact;
 
 import java.io.Serializable;
 
-public class Contact implements Serializable {
+public class Contact implements Serializable, Comparable<Contact> {
     private String fullName;
     private String phoneNumber;
     private String city;
@@ -45,5 +45,10 @@ public class Contact implements Serializable {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    @Override
+    public int compareTo(Contact o) {
+        return this.getFullName().compareToIgnoreCase(o.getFullName());
     }
 }
