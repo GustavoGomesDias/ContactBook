@@ -1,11 +1,13 @@
 package com;
 
-import com.code.Buffer;
+import com.code.BufferManager;
+import com.code.FileManager;
 import com.contact.Contact;
 import com.contact.ContactFactory;
-import com.ifes.tpa.GenData;
 
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.lang.reflect.InvocationTargetException;
 
 public class Main {
@@ -14,9 +16,13 @@ public class Main {
         // fake.populateFile();
         ContactFactory<Contact> wrapper = new ContactFactory<>(Contact.class);
 
-        // TODO: Testar se funciona dessa forma
-        Buffer<Contact> buffer = new Buffer<Contact>(100, 1, "./results/test.txt", wrapper);
-        buffer.load(",");
-        buffer.writeFile("getFullName", "getPhoneNumber", "getCity", "getCountry");
+//        Buffer<Contact> buffer = new Buffer<Contact>(100, 1, "./results/test.txt", wrapper);
+//        buffer.load(",");
+//        buffer.writeFile("getFullName", "getPhoneNumber", "getCity", "getCountry");
+
+        BufferManager bufferManager = new BufferManager("./results/test.txt");
+
+        bufferManager.handleSplitFile();
+
     }
 }

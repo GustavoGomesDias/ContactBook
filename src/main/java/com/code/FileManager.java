@@ -14,13 +14,13 @@ import java.util.ArrayList;
 * Splitando aproximadamente
 *   */
 
-public class ManageFile {
+public class FileManager {
     private String filePath;
     private int byteSize;
     private long actualPos;
     private final ArrayList<String> outFilePathList = new ArrayList<>();
 
-    public ManageFile(String filePath, int byteSize) {
+    public FileManager(String filePath, int byteSize) {
         this.filePath = filePath;
         this.byteSize = byteSize;
         this.actualPos = 0;

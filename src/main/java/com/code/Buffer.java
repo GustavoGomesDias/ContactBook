@@ -37,6 +37,10 @@ public class Buffer<E> extends ArrayList<E> {
             ObjectSizeCalculator objSizeCalc = new ObjectSizeCalculator();
 
             String infos = bufferedReader.readLine();
+            // PODE SER USADO PARA LER LINHAS
+            // Quando eu estiver compelatado o sizing < this.maxSize, eu posso usar esse LineNumberReader para saber se tem mais linhas
+            // Da para trocar esse while também, pois aparentemente ele também consegue ler os dados (testar)
+            LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(this.file));
 
             long sizing = 0;
             long pos = 0;
