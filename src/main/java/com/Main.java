@@ -1,28 +1,48 @@
 package com;
 
 import com.code.BufferManager;
-import com.code.FileManager;
+import com.code.IDataBuffer;
+import com.code.Merge;
 import com.contact.Contact;
-import com.contact.ContactFactory;
+import com.contact.ContactBuffer;
+import com.ifes.tpa.GenData;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InstantiationException, IOException, InvocationTargetException {
-        // GenData fake = new GenData();
-        // fake.populateFile();
-        ContactFactory<Contact> wrapper = new ContactFactory<>(Contact.class);
+        Scanner reader = new Scanner(System.in);
+        System.out.println("======== TABALHO 1 ========");
+        System.out.println("1 - ADicionar dados Faker, 2 - Parte 1 do trabalho, 3 - Parte dois do trabalho");
+        System.out.println("Qual ação pretende executar?");
 
-//        Buffer<Contact> buffer = new Buffer<Contact>(100, 1, "./results/test.txt", wrapper);
-//        buffer.load(",");
-//        buffer.writeFile("getFullName", "getPhoneNumber", "getCity", "getCountry");
-
-        BufferManager bufferManager = new BufferManager("./results/test.txt");
-
-        bufferManager.handleSplitFile();
-
+        int action = reader.nextInt();
+        reader.nextLine();
+        switch (action) {
+            case 1:
+                GenData fake = new GenData();
+                fake.populateFile();
+                break;
+            case 2:
+                System.out.println("Parte 1 do trabalho (merge)");
+                System.out.println("Nome do arquivo (ele deve estar na pasta result):");
+                String filePath = reader.nextLine();
+                ContactBuffer contactBuffer = new ContactBuffer();
+                BufferManager<Contact> bufferManager = new BufferManager<Contact>(filePath, contactBuffer);
+                bufferManager.handleSplitFile("getFullName", "getPhoneNumber", "getCity", "getCountry");
+                bufferManager.genBuffers();
+                Merge<Contact> merge = new Merge<>(bufferManager.getBufferArrayList().size(), bufferManager.genBufferOut(), bufferManager);
+                merge.merge(bufferManager.getBufferArrayList().get(0), bufferManager.getBufferArrayList().get(1));
+                break;
+            case 3:
+                System.out.println("Parte 2 do trabalho (hash)");
+                System.out.println(Runtime.getRuntime().freeMemory() + " bytes");
+                break;
+            default:
+                System.out.println("Ação não identificada.");
+                break;
+        }
     }
 }

@@ -1,6 +1,7 @@
 /*
  * Gerado de Agendas
  * Autor: Mateus Costa
+ * Editado por: Gustavo Gomes Dias
  */
 
 package com.ifes.tpa;
@@ -127,8 +128,6 @@ public class GenData {
         while (size > bytes) {
             this.generateFakeData(fileName);
             bytes = file.length() / parser;
-
-            System.out.println(decimalFormat.format(bytes) + " " + measureUnit);
         }
         long stop = System.nanoTime();
         System.out.println("Tamanho final: " + decimalFormat.format(bytes) + " " + measureUnit);

@@ -2,46 +2,65 @@ package com.code;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
-public class BufferManager {
-    private final int ramMemoryFree;
+public class BufferManager<E> {
+    private final long ramMemoryFree;
     private String filePath;
-    private FileManager fileManager;
+    private final FileManager<E> fileManager;
+    private final ArrayList<Buffer<E>> bufferArrayList = new ArrayList<>();
+    private final IDataBuffer<E> dataBuffer;
 
-    public BufferManager(String filePath) {
-        this.ramMemoryFree = 100 * 1024;
+    public BufferManager(String filePath, IDataBuffer<E> dataBuffer) {
+        this.ramMemoryFree = 500 * 1024; //Runtime.getRuntime().freeMemory();
         this.filePath = filePath;
-        this.fileManager = new FileManager(this.filePath, this.ramMemoryFree);
+        this.fileManager = new FileManager<>(this.filePath, this.ramMemoryFree, dataBuffer);
+        this.dataBuffer = dataBuffer;
     }
 
 
-    // TODO: Está funcionando até certo ponto, como o calculo do tamanho é aproximado, ele acana mão pegando a "rebarba"
-    public void handleSplitFile() {
-        try {
-            long fileLength = this.ramMemoryFree;
-            File file = new File(this.filePath);
+    public void handleSplitFile(String...order) throws IOException {
+        long fileLength = this.ramMemoryFree;
+        File file = new File("./results/" + this.filePath);
 
-            while(fileLength < file.length()){
-                this.fileManager.splitFile();
-                fileLength += this.ramMemoryFree;
-            }
+        while (fileLength < file.length()) {
+            this.fileManager.splitFile(order);
+            fileLength += this.ramMemoryFree;
+        }
 
-            long splitMemorySize = 0;
+        long splitMemorySize = 0;
 
-            for(String path : this.fileManager.getOutFilePathList()) {
-                File outFile = new File("./results/" + path);
-                splitMemorySize += outFile.length();
-            }
+        for(String path : this.fileManager.getOutFilePathList()) {
+            File outFile = new File("./results/" + path);
+            splitMemorySize += outFile.length();
+        }
 
-            if (splitMemorySize < file.length()) {
-                this.fileManager.splitFile();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (splitMemorySize < file.length()) {
+            this.fileManager.splitFile(order);
         }
     }
 
-    public int getRamMemoryFree() {
+    public void genBuffers() {
+        for (String filepath : this.fileManager.getOutFilePathList()) {
+            Buffer<E> buffer = this.dataBuffer.build(this.ramMemoryFree, 0, filepath, BufferAction.IN);
+            buffer.load(",");
+            this.bufferArrayList.add(buffer);
+        }
+    }
+
+    public ArrayList<Buffer<E>> getBufferArrayList() {
+        return this.bufferArrayList;
+    }
+
+    public Buffer<E> genBufferOut () {
+        return this.dataBuffer.build(this.ramMemoryFree, 0, "/results/merge.txt", BufferAction.OUT);
+    }
+
+    public void write(Buffer<E> buffer) {
+        this.dataBuffer.writeFile(buffer);
+    }
+
+    public long getRamMemoryFree() {
         return ramMemoryFree;
     }
 

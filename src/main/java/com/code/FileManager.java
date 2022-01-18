@@ -1,7 +1,6 @@
 package com.code;
 
-import com.contact.Contact;
-import com.contact.ContactFactory;
+import com.contact.ContactBuffer;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -14,35 +13,33 @@ import java.util.ArrayList;
 * Splitando aproximadamente
 *   */
 
-public class FileManager {
+public class FileManager<E> {
     private String filePath;
-    private int byteSize;
+    private long byteSize;
     private long actualPos;
     private final ArrayList<String> outFilePathList = new ArrayList<>();
+    private final IDataBuffer<E> dataBuffer;
 
-    public FileManager(String filePath, int byteSize) {
+    public FileManager(String filePath, long byteSize, IDataBuffer<E> dataBuffer) {
         this.filePath = filePath;
         this.byteSize = byteSize;
         this.actualPos = 0;
-
+        this.dataBuffer = dataBuffer;
     }
 
-    public void splitFile() throws IOException {
+    public void splitFile(String...order) {
         try {
-            ContactFactory<Contact> contactFactory = new ContactFactory<>(Contact.class);
-
-            Buffer<Contact> buffer = new Buffer<Contact>(this.byteSize, this.actualPos, this.filePath, contactFactory);
+            Buffer<E> buffer = this.dataBuffer.build(this.byteSize, this.actualPos, this.filePath, BufferAction.IN);
             buffer.load(",");
             this.setActualPos(buffer.getFinalPos());
-            this.outFilePathList.add(buffer.getOutFileName());
-            buffer.writeFile("getFullName", "getPhoneNumber", "getCity", "getCountry");
-        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            this.outFilePathList.add(buffer.writeFile(order));
+        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException | IOException e) {
             e.printStackTrace();
         }
 
     }
 
-    public int getByteSize() {
+    public long getByteSize() {
         return byteSize;
     }
 

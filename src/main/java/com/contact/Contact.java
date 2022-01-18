@@ -1,6 +1,7 @@
 package com.contact;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class Contact implements Serializable, Comparable<Contact> {
     private String fullName;
@@ -49,6 +50,13 @@ public class Contact implements Serializable, Comparable<Contact> {
 
     @Override
     public int compareTo(Contact o) {
-        return this.getFullName().compareToIgnoreCase(o.getFullName());
+        String[] fullName = this.getFullName().split(" ");
+        String[] oFullName = o.getFullName().split(" ");
+
+        if (fullName[0].compareToIgnoreCase(oFullName[0]) == 0) {
+            return fullName[1].compareToIgnoreCase(oFullName[1]);
+        }
+
+        return fullName[0].compareToIgnoreCase(oFullName[0]);
     }
 }
