@@ -1,8 +1,7 @@
 package com;
 
-import com.code.BufferManager;
-import com.code.IDataBuffer;
-import com.code.Merge;
+import com.code.buffer.BufferManager;
+import com.code.algorithm.Merge;
 import com.contact.Contact;
 import com.contact.ContactBuffer;
 import com.ifes.tpa.GenData;
@@ -26,15 +25,16 @@ public class Main {
                 fake.populateFile();
                 break;
             case 2:
-                System.out.println("Parte 1 do trabalho (merge)");
+                System.out.println("===== Parte 1 do trabalho (merge) =====");
                 System.out.println("Nome do arquivo (ele deve estar na pasta result):");
                 String filePath = reader.nextLine();
                 ContactBuffer contactBuffer = new ContactBuffer();
                 BufferManager<Contact> bufferManager = new BufferManager<Contact>(filePath, contactBuffer);
                 bufferManager.handleSplitFile("getFullName", "getPhoneNumber", "getCity", "getCountry");
                 bufferManager.genBuffers();
-                Merge<Contact> merge = new Merge<>(bufferManager.getBufferArrayList().size(), bufferManager.genBufferOut(), bufferManager);
-                merge.merge(bufferManager.getBufferArrayList().get(0), bufferManager.getBufferArrayList().get(1));
+                Merge<Contact> merge = new Merge<>(bufferManager.getBufferArrayList().size(), bufferManager.genBufferOut(""), bufferManager);
+                merge.mergeResult(null, 5);
+                merge.printFileOut();
                 break;
             case 3:
                 System.out.println("Parte 2 do trabalho (hash)");

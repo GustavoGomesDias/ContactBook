@@ -1,4 +1,7 @@
-package com.code;
+package com.code.buffer;
+
+import com.code.Factory;
+import com.code.algorithm.ObjectSizeCalculator;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -6,34 +9,43 @@ import java.lang.reflect.Method;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 public class Buffer<E> extends ArrayList<E> {
     private long maxSize;
     private long actualPos;
     private long finalPos;
     private File file;
+    private String enterFileName;
     private String outFileName;
     private final String bufferAction;
     private final Factory<E> factory;
+    private final BufferAction bAction;
 
-    public Buffer(long maxSize, long actualPos, String filePath, Factory<E> factory, BufferAction bufferAction) {
+    public Buffer(long maxSize, long actualPos, String filePath, Factory<E> factory, BufferAction bufferAction, String outFile) {
         this.maxSize = maxSize;
         this.actualPos = actualPos;
         this.finalPos = actualPos;
-        if (bufferAction == BufferAction.IN) {
+        this.bAction = bufferAction;
+        if (bufferAction == BufferAction.IN || bufferAction == BufferAction.SPLIT || bufferAction == BufferAction.MERGE) {
             this.file = new File("./results/" + filePath);
-            this.bufferAction = "in";
+            this.enterFileName = filePath;
+            if (bufferAction == BufferAction.MERGE) this.bufferAction = "merge";
+            else this.bufferAction = "in";
         } else {
             this.bufferAction = "out";
         }
         this.factory = factory;
+        this.outFileName = outFile;
     }
 
-    public void load(String split) {
+    public BufferLoadState load(String split) {
         try {
+            long sizing = 0, pos = 0;
+
             if (!this.file.exists()) {
                 System.out.println("Arquivo de entrada não existe!");
-                return;
+                return BufferLoadState.NOTEXISTS;
             }
 
             BufferedReader bufferedReader = new BufferedReader(new FileReader(this.file));
@@ -41,27 +53,39 @@ public class Buffer<E> extends ArrayList<E> {
 
             String infos = bufferedReader.readLine();
 
-            long sizing = 0;
-            long pos = 0;
-            while((sizing < this.maxSize) && (infos != null)) {
+            if (infos == null || infos.equals("")) return BufferLoadState.END;
+
+            while(sizing < (this.maxSize)) {
                 String[] args = infos.split(split);
                 if (pos >= this.getActualPos()) {
                     E data = factory.make(args);
                     this.add(data);
                     sizing += objSizeCalc.getObjectSizeInBytes(data);
                     this.finalPos += 1;
+                    this.actualPos++;
                 }
                 infos = bufferedReader.readLine();
+
+                if (infos == null) {
+                    return BufferLoadState.END;
+                }
                 pos++;
             }
+            return BufferLoadState.HASMORE;
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
+            return BufferLoadState.ERROR;
         }
     }
 
     public String writeFile(String...order) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         this.sort();
-        this.setOutFileName(this.bufferAction);
+        if (this.outFileName.equals("")) {
+            this.setOutFileName(this.bufferAction);
+        }
+        if (this.bufferAction.equals("merge")) {
+            System.out.println(this.outFileName);
+        }
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("./results/" + this.outFileName, true));
         for (E E : this) {
             StringBuilder str = new StringBuilder();
@@ -122,8 +146,24 @@ public class Buffer<E> extends ArrayList<E> {
     }
 
     public void setOutFileName(String action) {
-        long random = new SecureRandom().nextInt();
-        long randomNumber = random < 0 ? random * (-1) : random;
-        this.outFileName = action + "-" + randomNumber + ".txt";
+        if (action.equals("in") || action.equals("out") || action.equals("merge")) {
+            long random = new SecureRandom().nextInt();
+            long randomNumber = random < 0 ? random * (-1) : random;
+            this.outFileName = action + "-" + randomNumber + ".txt";
+        } else {
+            this.outFileName = action;
+        }
+    }
+
+    public String getEnterFileName() {
+        return enterFileName;
+    }
+
+    public void setEnterFileName(String enterFileName) {
+        this.enterFileName = enterFileName;
+    }
+
+    public BufferAction getbAction() {
+        return bAction;
     }
 }

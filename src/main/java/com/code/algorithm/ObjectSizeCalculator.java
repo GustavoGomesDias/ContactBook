@@ -1,14 +1,15 @@
-package com.code;
+package com.code.algorithm;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 public class ObjectSizeCalculator {
+
     private Object getFirstObjectReference(Object o) {
         String objectType = o.getClass().getTypeName();
 
-        if (objectType.substring(objectType.length()-2).equals("[]")) {
+        if (objectType.substring(objectType.length() - 2).equals("[]")) {
             try {
                 if (objectType.equals("java.lang.Object[]"))
                     return ((Object[])o)[0];
@@ -17,6 +18,7 @@ public class ObjectSizeCalculator {
                 else
                     throw new RuntimeException("Not Implemented !");
             } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
                 return null;
             }
         }
@@ -27,15 +29,15 @@ public class ObjectSizeCalculator {
     public int getObjectSizeInBytes(Object o) {
         final String STRING_JAVA_TYPE_NAME = "java.lang.String";
 
-        if (o == null)
-            return 0;
+        if (o == null) return 0;
 
         String objectType = o.getClass().getTypeName();
         boolean isArray = objectType.substring(objectType.length() - 2).equals("[]");
 
         Object objRef = getFirstObjectReference(o);
-        if (objRef != null && !(objRef instanceof Serializable))
+        if (objRef != null && !(objRef instanceof Serializable)) {
             throw new RuntimeException("Object must be serializable for measuring it's memory footprint using this method !");
+        }
 
         try {
             ByteArrayOutputStream baOutStrem = new ByteArrayOutputStream();
@@ -46,14 +48,12 @@ public class ObjectSizeCalculator {
 
             for (int i = bytes.length - 1, j = 0; i != 0; i--, j++) {
                 if (!objectType.equals(STRING_JAVA_TYPE_NAME)) {
-                    if (bytes[i] == 112)
-                        if (isArray)
-                            return j - 4;
-                        else
-                            return j;
+                    if (bytes[i] == 112) {
+                        if (isArray) return j - 4;
+                        else return j;
+                    }
                 } else {
-                    if (bytes[i] == 0)
-                        return j - 1;
+                    if (bytes[i] == 0) return j - 1;
                 }
             }
         } catch (Exception e) {

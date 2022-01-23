@@ -53,10 +53,14 @@ public class Contact implements Serializable, Comparable<Contact> {
         String[] fullName = this.getFullName().split(" ");
         String[] oFullName = o.getFullName().split(" ");
 
-        if (fullName[0].compareToIgnoreCase(oFullName[0]) == 0) {
-            return fullName[1].compareToIgnoreCase(oFullName[1]);
-        }
+        String thisFullName = fullName[0].concat(fullName[1]);
+        String foreignFullName = oFullName[0].concat(oFullName[1]);
 
-        return fullName[0].compareToIgnoreCase(oFullName[0]);
+        return thisFullName.compareToIgnoreCase(foreignFullName);
+//        if (fullName[0].compareToIgnoreCase(oFullName[0]) == 0) {
+//            return fullName[1].compareToIgnoreCase(oFullName[1]);
+//        }
+//
+//        return fullName[0].compareToIgnoreCase(oFullName[0]);
     }
 }

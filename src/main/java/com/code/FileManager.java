@@ -1,6 +1,8 @@
 package com.code;
 
-import com.contact.ContactBuffer;
+import com.code.buffer.Buffer;
+import com.code.buffer.BufferAction;
+import com.code.buffer.IDataBuffer;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -29,7 +31,7 @@ public class FileManager<E> {
 
     public void splitFile(String...order) {
         try {
-            Buffer<E> buffer = this.dataBuffer.build(this.byteSize, this.actualPos, this.filePath, BufferAction.IN);
+            Buffer<E> buffer = this.dataBuffer.build(this.byteSize, this.actualPos, this.filePath, BufferAction.SPLIT, "");
             buffer.load(",");
             this.setActualPos(buffer.getFinalPos());
             this.outFilePathList.add(buffer.writeFile(order));
