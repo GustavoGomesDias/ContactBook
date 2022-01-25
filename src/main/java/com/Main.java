@@ -33,7 +33,7 @@ public class Main {
                 bufferManager.handleSplitFile("getFullName", "getPhoneNumber", "getCity", "getCountry");
                 bufferManager.genBuffers();
                 Merge<Contact> merge = new Merge<>(bufferManager.getBufferArrayList().size(), bufferManager.genBufferOut(""), bufferManager);
-                merge.mergeResult(null, 5);
+                merge.mergeResult(null, 3);
                 merge.printFileOut();
                 break;
             case 3:
